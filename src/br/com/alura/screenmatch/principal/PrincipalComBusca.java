@@ -1,5 +1,6 @@
 package br.com.alura.screenmatch.principal;
 
+import br.com.alura.screenmatch.excecoes.ErroDeConversaoDeAnoException;
 import br.com.alura.screenmatch.modelos.Titulo;
 import br.com.alura.screenmatch.modelos.TituloOmdb;
 import com.google.gson.FieldNamingPolicy;
@@ -21,22 +22,36 @@ public class PrincipalComBusca {
         String busca = sc.nextLine();
         String endereco = "https://www.omdbapi.com/?t=" + busca.replace(" ", "+") + "&apikey=71262be4";
 
-        HttpClient client = HttpClient.newHttpClient();
+        try{
+            HttpClient client = HttpClient.newHttpClient();
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(endereco))
-                .build();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(endereco))
+                    .build();
 
-        HttpResponse<String> response = client
-                .send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response = client
+                    .send(request, HttpResponse.BodyHandlers.ofString());
 
-        String json = response.body();
-        System.out.println(json);
+            String json = response.body();
+            System.out.println(json);
 
-        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
-        TituloOmdb tituloOmdb = gson.fromJson(json, TituloOmdb.class);
-        System.out.println("Título: " + tituloOmdb);
-        Titulo meuTitulo = new Titulo(tituloOmdb);
-        System.out.println("Titulo convertido: " + meuTitulo);
+            Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+            TituloOmdb tituloOmdb = gson.fromJson(json, TituloOmdb.class);
+
+            System.out.println("TítuloOmdb: " + tituloOmdb);
+            Titulo meuTitulo = new Titulo(tituloOmdb);
+            System.out.println("Titulo convertido: " + meuTitulo);
+        }
+        catch(NumberFormatException e){
+            System.out.println("Aconteceu um Erro:");
+            System.out.println(e.getMessage());
+        }
+        catch(IllegalArgumentException e){
+            System.out.println("Algum erro de argumento da busca");
+            System.out.println(e.getMessage());
+        }
+        catch (ErroDeConversaoDeAnoException e){
+            System.out.println(e.getMessage());
+        }
     }
 }
